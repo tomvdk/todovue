@@ -1,0 +1,55 @@
+<html>
+    <body>
+        <script src="http://unpkg.com/vue"></script>            
+        <div id="app">
+            <todo key="todo.id" v-for="todo in todos" :todo="todo" @toggle="toggleTodo(todo)">
+            </todo>
+        </div>
+        <script>
+            Vue.component('todo', {
+                props: {
+                    todo: {
+                        type: Object,
+                        required: true
+                    }
+                },
+                //options
+                template:   `<div> 
+                                <input type="checkbox" v-model="todo.isDone" @click="$emit('toggle')"></input>
+                                <span v-if="!isEditing" @click="$emit('toggle')">{{ todo.text }}</span>
+                                <input v-else type="text" v-model="todo.text"></input>
+                                <button @click="isEditing = !isEditing">{{isEditing ? 'Save' : 'Edit'}}</button>
+                            </div>`,
+                data() {return {
+                    msg: Math.random(),
+                    isEditing: false
+                }}
+            })
+
+            console.log(Vue.version);
+            Vue.config.productionTip = false;
+
+            const vm = new Vue({
+                
+                el: "#app",
+                data() {
+                    return { 
+                        todos: 
+                        [{
+                            id: 1, text: 'my first todo', isDone: false
+                        },{
+                            id: 2, text: 'todo2', isDone: false
+                        },{
+                            id: 3, text: 'todo3', isDone: false
+                        }]
+                    }
+                },
+                methods: {
+                    toggleTodo(todo){
+                        todo.isDone = !todo.isDone
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
