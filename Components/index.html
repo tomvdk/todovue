@@ -1,9 +1,14 @@
 <html>
     <body>
+        <style>
+            .done{
+                text-decoration: line-through;
+            }
+        </style>
         <script src="http://unpkg.com/vue"></script>            
         <div id="app">
-            <todo key="todo.id" v-for="todo in todos" :todo="todo" @toggle="toggleTodo(todo)">
-            </todo>
+            <input type="text" v-model="currentTodo"></input><button @click="addTodo">Add</button>
+            <todo key="todo.id" v-for="todo in todos" :todo="todo" @toggle="toggleTodo(todo)" @save="saveTheTodo"></todo>
         </div>
         <script>
             Vue.component('todo', {
@@ -14,16 +19,24 @@
                     }
                 },
                 //options
-                template:   `<div> 
+                template:   `<div>
                                 <input type="checkbox" v-model="todo.isDone" @click="$emit('toggle')"></input>
-                                <span v-if="!isEditing" @click="$emit('toggle')">{{ todo.text }}</span>
-                                <input v-else type="text" v-model="todo.text"></input>
-                                <button @click="isEditing = !isEditing">{{isEditing ? 'Save' : 'Edit'}}</button>
+                                <span v-if="!isEditing" :class="{done: todo.isDone}" @dblclick="startEdit">{{ todo.text }}</span>
+                                <input v-else type="text" :value="todo.text" @keydown.enter="onEditDone($event)"></input>
                             </div>`,
                 data() {return {
-                    msg: Math.random(),
                     isEditing: false
-                }}
+                }},
+                methods: {
+                    startEdit(){
+                        this.isEditing = !this.isEditing;
+                    },
+                    onEditDone(e){
+                        console.log(e)
+                        this.$emit('save', this.todo, e.target.value)
+                        this.isEditing = false                        
+                    }
+                }
             })
 
             console.log(Vue.version);
@@ -34,6 +47,7 @@
                 el: "#app",
                 data() {
                     return { 
+                        currentTodo: '',
                         todos: 
                         [{
                             id: 1, text: 'my first todo', isDone: false
@@ -47,6 +61,15 @@
                 methods: {
                     toggleTodo(todo){
                         todo.isDone = !todo.isDone
+                    },
+                    addTodo(){
+                        this.todos.push({ id: -1, text: this.currentTodo, isDone: false })
+                        this.currentTodo = '';
+                    },
+                    saveTheTodo(todo, newVal){
+                        console.log(todo);
+                        console.log(newVal);
+                        todo.text = newVal;
                     }
                 }
             });
